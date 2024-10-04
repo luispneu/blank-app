@@ -4,9 +4,9 @@ import cv2
 from PIL import Image
 import streamlit as st
 
-# Defina suas credenciais da API do Roboflow
-API_KEY = "4nrRBlLaBjzddDC8nC3i"  # Substitua pela sua API Key
-PROJECT_URL = "https://api.roboflow.com/projeto-ifms/visao-computacional-lxlqb/1"  # Ajuste para o URL do seu projeto
+
+API_KEY = "4nrRBlLaBjzddDC8nC3i" 
+PROJECT_URL = "https://api.roboflow.com/projeto-ifms/visao-computacional-lxlqb/1" 
 
 def make_prediction(image_file):
     """
@@ -24,30 +24,29 @@ def make_prediction(image_file):
         files={"file": image_file}
     )
     
-    # Verificação de status
+  
     if response.status_code != 200:
         st.error(f"Erro ao acessar a API: {response.status_code} - {response.text}")
         return {}
     
     result = response.json()
-    st.write("Resposta da API:", result)  # Para depuração
+    st.write("Resposta da API:", result) 
     return result
 
 def capture_image():
-    cap = cv2.VideoCapture(0)  # 0 para usar a câmera padrão
+    cap = cv2.VideoCapture(0)  
     ret, frame = cap.read()
-    cap.release()  # Libere a câmera após capturar
+    cap.release()  
     if ret:
         return frame
     else:
         st.error("Não foi possível capturar a imagem.")
 
 def main():
-    # Título do aplicativo
-    st.title("🎈 Classificação de Qualidade de Frutas")
+    
+    st.title("🍓 Classificação de Qualidade de Frutas")
     st.write("Faça upload de uma imagem de uma fruta ou capture uma imagem pela câmera e descubra sua qualidade!")
 
-    # Botão para capturar imagem
     if st.button("Capturar Imagem"):
         img = capture_image()
         if img is not None:
@@ -63,10 +62,9 @@ def main():
 
             if 'predictions' in result:
                 predictions = result['predictions']
-                predicted_class = predictions[0]['class']  # Classe prevista
-                confidence = predictions[0]['confidence']  # Confiança da previsão
-
-                # Exibir resultado
+                predicted_class = predictions[0]['class']  
+                confidence = predictions[0]['confidence']  
+              
                 if predicted_class.lower() == "saudável":
                     st.write(f"**Classificação Prevista:** A fruta está **SAUDÁVEL** com {confidence * 100:.2f}% de confiança.")
                 elif predicted_class.lower() == "não saudável":
@@ -76,7 +74,7 @@ def main():
             else:
                 st.write("Erro ao obter a previsão.")
 
-    # Upload de imagem
+   
     uploaded_file = st.file_uploader("Escolha uma imagem...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
@@ -91,8 +89,8 @@ def main():
 
         if 'predictions' in result:
             predictions = result['predictions']
-            predicted_class = predictions[0]['class']  # Classe prevista
-            confidence = predictions[0]['confidence']  # Confiança da previsão
+            predicted_class = predictions[0]['class']  
+            confidence = predictions[0]['confidence'] 
 
             if predicted_class.lower() == "saudável":
                 st.write(f"**Classificação Prevista:** A fruta está **SAUDÁVEL** com {confidence * 100:.2f}% de confiança.")
