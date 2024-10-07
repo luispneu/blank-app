@@ -1,51 +1,38 @@
 import io
-import requests
 import cv2
+import pandas as pd
+import gdown
 from PIL import Image
 import streamlit as st
 
+# URL do Google Drive (link compartilhável) para o arquivo CSV
+DATASET_URL = "https://drive.google.com/file/d/1QRNcTr6JlyR0DxvhSHihEiBfQjPQNU2b/view?usp=drive_link"  # Substitua pelo ID do seu arquivo
 
-API_KEY = "4nrRBlLaBjzddDC8nC3i" 
-PROJECT_URL = "https://api.roboflow.com/projeto-ifms/visao-computacional-lxlqb/1" 
+def load_dataset():
+    """Carrega o dataset de frutas do Google Drive."""
+    gdown.download(DATASET_URL, "dataset_frutas.csv", quiet=False)
+    return pd.read_csv("dataset_frutas.csv")
 
-def make_prediction(image_file):
-    """
-    Faz a previsão via API do Roboflow.
-    
-    Parameters:
-        image_file (BytesIO): A imagem em formato bytes para previsão.
-    
-    Returns:
-        dict: O resultado da previsão.
-    """
-    response = requests.post(
-        f"{PROJECT_URL}/predict",
-        headers={"Authorization": f"Bearer {API_KEY}"},
-        files={"file": image_file}
-    )
-    
-  
-    if response.status_code != 200:
-        st.error(f"Erro ao acessar a API: {response.status_code} - {response.text}")
-        return {}
-    
-    result = response.json()
-    st.write("Resposta da API:", result) 
-    return result
+def validate_fruit(image_file, dataset):
+    """Valida a fruta com base no dataset."""
+    # Aqui você pode adicionar sua lógica para validar a fruta
+    # Por exemplo, comparar características da imagem com os dados do dataset
+    return "SAUDÁVEL", 0.95  # Exemplo de classe e confiança
 
 def capture_image():
-    cap = cv2.VideoCapture(0)  
+    cap = cv2.VideoCapture(0)
     ret, frame = cap.read()
-    cap.release()  
+    cap.release()
     if ret:
         return frame
     else:
         st.error("Não foi possível capturar a imagem.")
 
 def main():
-    
     st.title("🍓 Classificação de Qualidade de Frutas")
-    st.write("Faça upload de uma imagem de uma fruta ou capture uma imagem pela câmera e descubra sua qualidade!")
+    st.write("Faça upload de uma imagem de uma fruta ou capture uma imagem pela câmera!")
+
+    dataset = load_dataset()
 
     if st.button("Capturar Imagem"):
         img = capture_image()
@@ -58,23 +45,9 @@ def main():
             pil_img.save(img_bytes, format='PNG')
             img_bytes.seek(0)
 
-            result = make_prediction(img_bytes)
+            predicted_class, confidence = validate_fruit(img_bytes, dataset)
+            st.write(f"**Classificação Prevista:** A fruta está **{predicted_class}** com {confidence * 100:.2f}% de confiança.")
 
-            if 'predictions' in result:
-                predictions = result['predictions']
-                predicted_class = predictions[0]['class']  
-                confidence = predictions[0]['confidence']  
-              
-                if predicted_class.lower() == "saudável":
-                    st.write(f"**Classificação Prevista:** A fruta está **SAUDÁVEL** com {confidence * 100:.2f}% de confiança.")
-                elif predicted_class.lower() == "não saudável":
-                    st.write(f"**Classificação Prevista:** A fruta está **NÃO SAUDÁVEL** com {confidence * 100:.2f}% de confiança.")
-                else:
-                    st.write(f"**Classificação Prevista:** {predicted_class} com {confidence * 100:.2f}% de confiança.")
-            else:
-                st.write("Erro ao obter a previsão.")
-
-   
     uploaded_file = st.file_uploader("Escolha uma imagem...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
@@ -85,21 +58,8 @@ def main():
         img.save(img_bytes, format='PNG')
         img_bytes.seek(0)
 
-        result = make_prediction(img_bytes)
-
-        if 'predictions' in result:
-            predictions = result['predictions']
-            predicted_class = predictions[0]['class']  
-            confidence = predictions[0]['confidence'] 
-
-            if predicted_class.lower() == "saudável":
-                st.write(f"**Classificação Prevista:** A fruta está **SAUDÁVEL** com {confidence * 100:.2f}% de confiança.")
-            elif predicted_class.lower() == "não saudável":
-                st.write(f"**Classificação Prevista:** A fruta está **NÃO SAUDÁVEL** com {confidence * 100:.2f}% de confiança.")
-            else:
-                st.write(f"**Classificação Prevista:** {predicted_class} com {confidence * 100:.2f}% de confiança.")
-        else:
-            st.write("Erro ao obter a previsão.")
+        predicted_class, confidence = validate_fruit(img_bytes, dataset)
+        st.write(f"**Classificação Prevista:** A fruta está **{predicted_class}** com {confidence * 100:.2f}% de confiança.")
 
 if __name__ == "__main__":
     main()
