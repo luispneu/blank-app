@@ -33,12 +33,48 @@ def capture_image():
         st.error("Não foi possível capturar a imagem.")
 
 def main():
-    st.title("🍓 Classificação de Qualidade de Frutas")
-    st.write("Faça upload de uma imagem de uma fruta ou capture uma imagem pela câmera!")
+    # Estilizando o app com CSS
+    st.markdown(
+        """
+        <style>
+        body {
+            background-color: #F0F0F0;
+            color: #379683;
+            font-family: 'Arial', sans-serif;
+        }
+        .title {
+            color: #FF6F61;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        .description {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .button {
+            background-color: #A8E6CF;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .button:hover {
+            background-color: #FFD74E;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown('<h1 class="title">🍓 Classificação de Qualidade de Frutas</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="description">Faça upload de uma imagem de uma fruta ou capture uma imagem pela câmera!</p>', unsafe_allow_html=True)
 
     dataset = load_dataset()
 
-    if st.button("Capturar Imagem"):
+    if st.button("Capturar Imagem", key="capture"):
         img = capture_image()
         if img is not None:
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
