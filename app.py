@@ -4,9 +4,10 @@ import pandas as pd
 import gdown
 from PIL import Image
 import streamlit as st
+import random  # Importar random para lógica de classificação
 
 # URL do Google Drive (link compartilhável) para o arquivo CSV
-DATASET_URL = "https://drive.google.com/file/d/1QRNcTr6JlyR0DxvhSHihEiBfQjPQNU2b/view?usp=drive_link"  # Substitua pelo ID do seu arquivo
+DATASET_URL = "https://drive.google.com/file/d/1QRNcTr6JlyR0DxvhSHihEiBfQjPQNU2b/view?usp=drive_link"
 
 def load_dataset():
     """Carrega o dataset de frutas do Google Drive."""
@@ -15,9 +16,12 @@ def load_dataset():
 
 def validate_fruit(image_file, dataset):
     """Valida a fruta com base no dataset."""
-    # Aqui você pode adicionar sua lógica para validar a fruta
-    # Por exemplo, comparar características da imagem com os dados do dataset
-    return "SAUDÁVEL", 0.95  # Exemplo de classe e confiança
+    # Exemplo: 70% de chance de ser saudável e 30% de chance de ser podre
+    confidence = random.uniform(0, 1)  # Gera um valor aleatório entre 0 e 1
+    if confidence > 0.7:  # 70% chance de ser saudável
+        return "SAUDÁVEL", confidence
+    else:  # 30% chance de ser podre
+        return "PODRE", confidence
 
 def capture_image():
     cap = cv2.VideoCapture(0)
